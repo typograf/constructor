@@ -11,9 +11,10 @@ rules
 
 var ConstructorApp = React.createClass({
     getInitialState: function() {
+        var defaultLang = 'ru';
         return {
             selectedAll: false,
-            lang: 'ru',
+            lang: defaultLang,
             langs: [
                 {
                     text: 'Ru',
@@ -24,7 +25,7 @@ var ConstructorApp = React.createClass({
                     value: 'en'
                 }
             ],
-            code: '',
+            code: this.getSource([], [], defaultLang),
             rules: rules
         };
     },
@@ -95,8 +96,8 @@ var ConstructorApp = React.createClass({
             this.updateSource();
         });
     },
-    getSource: function(enabled, disabled) {
-        var text = 'var t = new Typograf({lang: \'' + this.state.lang + '\'});\n',
+    getSource: function(enabled, disabled, lang) {
+        var text = 'var t = new Typograf({lang: \'' + lang + '\'});\n',
             pad = '\n    ',
             enable = [],
             disable = [];
@@ -123,13 +124,13 @@ var ConstructorApp = React.createClass({
         return {
             ru: {
                 defaultRules: 'По умолчанию',
-                result: 'Результат',
+                result: 'Результирующий код',
                 selectAll: 'Выбрать всё',
                 title: 'Выберите правила для Типографа'
             },
             en: {
                 defaultRules: 'Default',
-                result: 'Result',
+                result: 'Code',
                 selectAll: 'Select all',
                 title: 'Select rules for Typograf'
             }
@@ -151,7 +152,7 @@ var ConstructorApp = React.createClass({
             }
         });
 
-        this.setState({code: this.getSource(enabled, disabled)});
+        this.setState({code: this.getSource(enabled, disabled, this.state.lang)});
     },
     render: function() {
         var createLang = function(lang) {
