@@ -2,27 +2,14 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <link rel="stylesheet" media="all" href="rules.css" />
+    <link rel="stylesheet" media="all" href="constructor.css" />
     <title>Select rules for typograf</title>
 </head>
 <body>
-    <div class="page">
-        <h1>Select rules for typograf</h1>
-
-        <div class="controls">
-            <button class="controls__default">Default rules</button>
-        </div>
-
-        <div class="result">
-            Result:<br />
-            <textarea class="result__textarea" readonly="readonly" autocomplete="off" rows="10"></textarea>
-        </div>
-
-        <table class="rules">
-        </table>
-    </div>
+    <div class="page"></div>
+    <script src="https://fb.me/react-0.13.3.js"></script>
     <script src="https://rawgit.com/typograf/typograf/master/dist/typograf.js" defer="defer"></script>
     <script src="https://rawgit.com/typograf/typograf/master/dist/typograf.titles.js" defer="defer"></script>
-    <script src="rules.js" defer="defer"></script>
+    <script src="build/ConstructorApp.js" defer="defer"></script>
 </body>
 </html>

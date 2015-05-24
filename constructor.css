@@ -63,3 +63,13 @@ body
     background: #fafafa;
 }
 
+.controls__default
+{
+    margin-left: 2em;
+}
+
+.controls__select-all
+{
+    margin-right: 2em;
+}
+
