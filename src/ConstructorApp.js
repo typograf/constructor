@@ -162,7 +162,7 @@ var ConstructorApp = React.createClass({
         };
 
         var createRule = function(rule, index) {
-            var obj = Typograf.prototype.titles[rule.name],
+            var obj = Typograf.titles[rule.name],
                 title = obj[this.state.lang] || obj.common;
             return (
                 <tr 
