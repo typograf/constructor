@@ -13,6 +13,11 @@ body
     margin: 1em 0;
 }
 
+.controls__langs
+{
+    float: right;
+}
+
 .result
 {
     position: fixed;
@@ -34,6 +39,7 @@ body
 {
     margin-bottom: 10em;
     border-collapse: collapse;
+    width: 100%;
 }
 
 .rules th,
@@ -42,9 +48,25 @@ body
     padding: 0.2em 0.5em;
 }
 
+.rules thead th
+{
+    background: #e0e0e0;
+}
+
 .rules__num
 {
     text-align: right;
+    width: 2em;
+}
+
+.rules__control
+{
+    width: 1em;
+}
+
+.rules__name
+{
+    width: 30%;
 }
 
 .rules__name,
@@ -53,23 +75,23 @@ body
     text-align: left;
 }
 
+.rules__name-filter,
+.rules__title-filter
+{
+    display: block;
+}
+
 .rules__row_checked td
 {
     background: #f0f0f0;
 }
 
+.rules__row_hidden
+{
+    display: none;
+}
+
 .rules tr:hover td
 {
-    background: #fafafa;
+    background: #fafaea;
 }
-
-.controls__default
-{
-    margin-left: 2em;
-}
-
-.controls__select-all
-{
-    margin-right: 2em;
-}
-

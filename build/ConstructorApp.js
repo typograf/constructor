@@ -3,7 +3,7 @@
 var rules = Typograf.prototype._rules;
 rules
     .sort(function(a, b) {
-        return a.name > b.name;
+        return a.name > b.name ? 1 : -1;
     })
     .forEach(function(rule) {
         rule.checked = !rule.disabled;
@@ -26,7 +26,9 @@ var ConstructorApp = React.createClass({displayName: "ConstructorApp",
                 }
             ],
             code: this.getSource([], [], defaultLang),
-            rules: rules
+            rules: rules,
+            nameFilter: '',
+            titleFilter: ''
         };
     },
     onChangeLang: function(e) {
@@ -37,10 +39,8 @@ var ConstructorApp = React.createClass({displayName: "ConstructorApp",
         }
     },
     onDefault: function() {
-        this.state.rules.map(function(rule) {
-            rule.checked = rule.disabled ? true : false;
-
-            return rule;
+        this.state.rules.forEach(function(rule) {
+            rule.checked = rule.disabled ? false : true;
         });
 
         this.setState({
@@ -49,29 +49,30 @@ var ConstructorApp = React.createClass({displayName: "ConstructorApp",
         }, function() {
             this.updateSource();
         });
-
     },
     onCheckRule: function(e) {
-        var name = e.target.id,
+        var name = e.target.dataset.id,
             checkedCount = 0,
-            count = 0,
-            stateRules = this.state.rules.map(function(rule) {
-                if(rule.name === name) {
-                    rule.checked = e.target.checked;
-                }
+            count = 0;
 
-                if(rule.checked) {
-                    checkedCount++;
-                }
 
-                count++;
+        this.state.rules.forEach(function(rule) {
+            if(rule.name === name) {
+                rule.checked = e.target.checked;
+            }
 
-                return rule;
-            });
+            if(rule.checked) {
+                checkedCount++;
+            }
+
+            count++;
+
+            return rule;
+        });
 
         this.setState({
             selectedAll: count === checkedCount,
-            rules: stateRules
+            rules: this.state.rules
         }, function() {
             this.updateSource();
         });
@@ -79,30 +80,164 @@ var ConstructorApp = React.createClass({displayName: "ConstructorApp",
     onClickTextarea: function() {
         React.findDOMNode(this.refs.textarea).select();
     },
-    onClickRow: function(e) {
+    onChangeNameFilter: function(e) {
+        this.onChangeNameTitle(e.target.value, this.state.titleFilter);
+    },
+    onChangeTitleFilter: function(e) {
+        this.onChangeNameTitle(this.state.nameFilter, e.target.value);
+    },
+    onChangeNameTitle: function(nameFilter, titleFilter) {
+        this.state.rules.forEach(function(rule) {
+            var isHidden = false,
+                name = rule.name;
+
+            if (nameFilter && name.toLowerCase().search(nameFilter.toLowerCase()) === -1) {
+                isHidden = true;
+            }
+
+            if (titleFilter && this.getTitle(name).toLowerCase().search(titleFilter.toLowerCase()) === -1) {
+                isHidden = true;
+            }
+
+            rule.hidden = isHidden;
+        }, this);
+
+        this.setState({
+            nameFilter: nameFilter,
+            titleFilter: titleFilter,
+            rules: this.state.rules
+        });
     },
     onChangeAll: function(e) {
-        var checked = e.target.checked,
-            stateRules = this.state.rules.map(function(rule) {
-                rule.checked = checked;
+        var checked = e.target.checked;
 
-                return rule;
-            });
+        this.state.rules.forEach(function(rule) {
+            rule.checked = checked;
+        });
 
         this.setState({
             selectedAll: checked,
-            rules: stateRules
+            rules: this.state.rules
         }, function() {
             this.updateSource();
         });
     },
+    render: function() {
+        var createLang = function(lang) {
+                return (React.createElement("label", null, 
+                    React.createElement("input", {
+                        name: "lang", 
+                        type: "radio", 
+                        onChange: this.onChangeLang, 
+                        checked: this.state.lang === lang.value, 
+                        key: lang.value, 
+                        value: lang.value}
+                    ), lang.text
+                ));
+            };
+
+        var index = 0,
+            createRule = function(rule) {
+            var title = this.getTitle(rule.name),
+                cls = [];
+
+            if (rule.checked) {
+                cls.push('rules__row_checked');
+            }
+
+            if (rule.hidden) {
+                cls.push('rules__row_hidden');
+            } else {
+                index++;
+            }
+
+            return (
+                React.createElement("tr", {
+                    className: cls.join(' '), 
+                    key: rule.name
+                }, 
+                    React.createElement("td", {className: "rules__control"}, 
+                        React.createElement("input", {
+                            type: "checkbox", 
+                            "data-id": rule.name, 
+                            className: "rules__checkbox", 
+                            checked: rule.checked, 
+                            onChange: this.onCheckRule, 
+                            autoComplete: "off"}
+                        )
+                    ), 
+                    React.createElement("td", {className: "rules__num"}, index, "."), 
+                    React.createElement("td", {className: "rules__name"}, rule.name), 
+                    React.createElement("td", {className: "rules__title"}, title)
+                )
+            );
+        };
+
+        return (
+            React.createElement("div", null, 
+                React.createElement("h1", null, this.text('title')), 
+                React.createElement("div", {className: "controls"}, 
+                    React.createElement("button", {className: "controls__default", onClick: this.onDefault}, this.text('defaultRules')), 
+                    React.createElement("div", {className: "controls__langs"}, this.state.langs.map(createLang, this))
+                ), 
+                React.createElement("div", {className: "result"}, 
+                this.text('result'), ":", React.createElement("br", null), 
+                    React.createElement("textarea", {
+                        className: "result__textarea", 
+                        ref: "textarea", 
+                        onClick: this.onClickTextarea, 
+                        readOnly: "readonly", 
+                        autoComplete: "off", 
+                        rows: "10", 
+                        value: this.state.code
+                    })
+                ), 
+                React.createElement("table", {className: "rules"}, 
+                    React.createElement("thead", null, 
+                        React.createElement("tr", null, 
+                            React.createElement("th", {className: "rules__control"}, 
+                                React.createElement("input", {
+                                    type: "checkbox", 
+                                    onChange: this.onChangeAll, 
+                                    checked: this.state.selectedAll}
+                                )
+                            ), 
+                            React.createElement("th", {className: "rules__num"}
+                            ), 
+                            React.createElement("th", {className: "rules__name"}, 
+                                React.createElement("input", {
+                                    className: "rules__name-filter", 
+                                    type: "text", 
+                                    placeholder: this.text('nameFilterPlaceholder'), 
+                                    value: this.state.nameFilter, 
+                                    onChange: this.onChangeNameFilter}
+                                )
+                            ), 
+                            React.createElement("th", {className: "rules__title"}, 
+                                React.createElement("input", {
+                                    className: "rules__title-filter", 
+                                    type: "text", 
+                                    placeholder: this.text('titleFilterPlaceholder'), 
+                                    value: this.state.titleFilter, 
+                                    onChange: this.onChangeTitleFilter}
+                                )
+                            )
+                        )
+                    ), 
+                    React.createElement("tbody", null, 
+                        this.state.rules.map(createRule, this)
+                    )
+                )
+            )
+        );
+    },
     getSource: function(enabled, disabled, lang) {
-        var text = 'var t = new Typograf({lang: \'' + lang + '\'});\n',
+        var text = '// Typograf v' + Typograf.version + '\nvar t = new Typograf({lang: \'' + lang + '\'});\n',
             pad = '\n    ',
             enable = [],
             disable = [];
 
-        if(enabled.length) {
+        if (enabled.length) {
             enabled.sort().forEach(function(rule) {
                 enable.push('"' + rule + '"');
             });
@@ -110,7 +245,7 @@ var ConstructorApp = React.createClass({displayName: "ConstructorApp",
             text += 't.enable([' + enable.join(',' + pad) + ']);\n';
         }
 
-        if(disabled.length) {
+        if (disabled.length) {
             disabled.sort().forEach(function(rule) {
                 disable.push('"' + rule + '"');
             });
@@ -126,15 +261,18 @@ var ConstructorApp = React.createClass({displayName: "ConstructorApp",
                 defaultRules: 'По умолчанию',
                 result: 'Результирующий код',
                 selectAll: 'Выбрать всё',
-                title: 'Выберите правила для Типографа'
+                title: 'Выберите правила для Типографа',
+                nameFilterPlaceholder: 'Фильтр по имени',
+                titleFilterPlaceholder: 'Фильтр по описанию'
             },
             en: {
                 defaultRules: 'Default',
                 result: 'Code',
                 selectAll: 'Select all',
-                title: 'Select rules for Typograf'
+                title: 'Select rules for Typograf',
+                nameFilterPlaceholder: 'Filter by name',
+                titleFilterPlaceholder: 'Filter by title'
             }
-
         }[this.state.lang][id];
     },
     updateSource: function() {
@@ -152,68 +290,15 @@ var ConstructorApp = React.createClass({displayName: "ConstructorApp",
             }
         });
 
-        this.setState({code: this.getSource(enabled, disabled, this.state.lang)});
+        this.setState({
+            code: this.getSource(enabled, disabled, this.state.lang)
+        });
     },
-    render: function() {
-        var createLang = function(lang) {
-            return (React.createElement("label", null, 
-                React.createElement("input", {type: "radio", onChange: this.onChangeLang, name: "lang", value: lang.value, checked: this.state.lang === lang.value, key: lang.value}), lang.text
-            ));
-        };
+    getTitle: function(name) {
+        var obj = Typograf.titles[name],
+            title = obj[this.state.lang] || obj.common;
 
-        var createRule = function(rule, index) {
-            var obj = Typograf.titles[rule.name],
-                title = obj[this.state.lang] || obj.common;
-            return (
-                React.createElement("tr", {
-                    className: rule.checked ? 'rules__row_checked' : '', 
-                    key: rule.name, 
-                    onClick: this.onClickRow
-                }, 
-                    React.createElement("td", {className: "rules__control"}, 
-                        React.createElement("input", {
-                            type: "checkbox", 
-                            className: "rules__checkbox", 
-                            checked: rule.checked, 
-                            id: rule.name, 
-                            onChange: this.onCheckRule, 
-                            autoComplete: "off"}
-                        )
-                    ), 
-                    React.createElement("td", {className: "rules__num"}, index + 1, "."), 
-                    React.createElement("td", {className: "rules__name"}, rule.name), 
-                    React.createElement("td", {className: "rules__title"}, title)
-                )
-            );
-        };
-
-        return (
-            React.createElement("div", null, 
-                React.createElement("h1", null, this.text('title')), 
-                React.createElement("div", {className: "controls"}, 
-                    React.createElement("label", {className: "controls__select-all"}, React.createElement("input", {type: "checkbox", onChange: this.onChangeAll, checked: this.state.selectedAll}), this.text('selectAll')), 
-                    this.state.langs.map(createLang, this), 
-                    React.createElement("button", {className: "controls__default", onClick: this.onDefault}, this.text('defaultRules'))
-                ), 
-                React.createElement("div", {className: "result"}, 
-                this.text('result'), ":", React.createElement("br", null), 
-                    React.createElement("textarea", {
-                        className: "result__textarea", 
-                        ref: "textarea", 
-                        onClick: this.onClickTextarea, 
-                        readOnly: "readonly", 
-                        autoComplete: "off", 
-                        rows: "10", 
-                        value: this.state.code
-                    })
-                ), 
-                React.createElement("table", {className: "rules"}, 
-                    React.createElement("tbody", null, 
-                        React.createElement("ul", null, this.state.rules.map(createRule, this))
-                    )
-                )
-            )
-        );
+        return title;
     }
 });
 
