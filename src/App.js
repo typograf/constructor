@@ -1,4 +1,9 @@
-(function(React) {
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+
+import Typograf from 'typograf';
+import getText from './Texts';
+import './App.css';
 
 var rules = Typograf.prototype._rules;
 rules
@@ -9,10 +14,25 @@ rules
         rule.checked = !rule.disabled;
     });
 
-var ConstructorApp = React.createClass({
-    getInitialState: function() {
+class App extends Component {
+    constructor(props) {
+        super(props);
+
+        [
+            'onChangeAll',
+            'onChangeLang',
+            'onChangeNameFilter',
+            'onChangeNameTitle',
+            'onChangeTitleFilter',
+            'onCheckRule',
+            'onClickTextarea',
+            'onDefault'
+        ].forEach(function(event) {
+            this[event] = this[event].bind(this);
+        }, this)
+
         var defaultLang = 'ru';
-        return {
+        this.state = {
             selectedAll: false,
             lang: defaultLang,
             langs: [
@@ -30,15 +50,17 @@ var ConstructorApp = React.createClass({
             nameFilter: '',
             titleFilter: ''
         };
-    },
-    onChangeLang: function(e) {
+    }
+
+    onChangeLang(e) {
         if(e.target.checked) {
             this.setState({lang: e.target.value}, function() {
                 this.updateSource();
             });
         }
-    },
-    onDefault: function() {
+    }
+
+    onDefault() {
         this.state.rules.forEach(function(rule) {
             rule.checked = rule.disabled ? false : true;
         });
@@ -49,12 +71,12 @@ var ConstructorApp = React.createClass({
         }, function() {
             this.updateSource();
         });
-    },
-    onCheckRule: function(e) {
+    }
+
+    onCheckRule(e) {
         var name = e.target.dataset.id,
             checkedCount = 0,
             count = 0;
-
 
         this.state.rules.forEach(function(rule) {
             if(rule.name === name) {
@@ -76,17 +98,21 @@ var ConstructorApp = React.createClass({
         }, function() {
             this.updateSource();
         });
-    },
-    onClickTextarea: function() {
-        React.findDOMNode(this.refs.textarea).select();
-    },
-    onChangeNameFilter: function(e) {
+    }
+
+    onClickTextarea() {
+        ReactDOM.findDOMNode(this.refs.textarea).select();
+    }
+
+    onChangeNameFilter(e) {
         this.onChangeNameTitle(e.target.value, this.state.titleFilter);
-    },
-    onChangeTitleFilter: function(e) {
+    }
+
+    onChangeTitleFilter(e) {
         this.onChangeNameTitle(this.state.nameFilter, e.target.value);
-    },
-    onChangeNameTitle: function(nameFilter, titleFilter) {
+    }
+
+    onChangeNameTitle(nameFilter, titleFilter) {
         this.state.rules.forEach(function(rule) {
             var isHidden = false,
                 name = rule.name;
@@ -107,8 +133,9 @@ var ConstructorApp = React.createClass({
             titleFilter: titleFilter,
             rules: this.state.rules
         });
-    },
-    onChangeAll: function(e) {
+    }
+
+    onChangeAll(e) {
         var checked = e.target.checked;
 
         this.state.rules.forEach(function(rule) {
@@ -121,23 +148,24 @@ var ConstructorApp = React.createClass({
         }, function() {
             this.updateSource();
         });
-    },
-    render: function() {
-        var createLang = function(lang) {
-                return (<label>
-                    <input
-                        name="lang"
-                        type="radio"
-                        onChange={this.onChangeLang}
-                        checked={this.state.lang === lang.value}
-                        key={lang.value}
-                        value={lang.value}
-                    />{lang.text}
-                </label>);
-            };
+    }
 
-        var index = 0,
-            createRule = function(rule) {
+    render() {
+        var index = 0;
+
+        function createLang(lang) {
+            return (<label key={lang.value}>
+                <input
+                    name="lang"
+                    type="radio"
+                    onChange={this.onChangeLang}
+                    checked={this.state.lang === lang.value}
+                    value={lang.value}
+                />{lang.text}
+            </label>);
+        }
+
+        function createRule(rule) {
             var title = this.getTitle(rule.name),
                 cls = [];
 
@@ -171,7 +199,7 @@ var ConstructorApp = React.createClass({
                     <td className="rules__title">{title}</td>
                 </tr>
             );
-        };
+        }
 
         return (
             <div>
@@ -230,8 +258,9 @@ var ConstructorApp = React.createClass({
                 </table>
             </div>
         );
-    },
-    getSource: function(enabled, disabled, lang) {
+    }
+
+    getSource(enabled, disabled, lang) {
         var text = '// Typograf v' + Typograf.version + '\nvar t = new Typograf({lang: \'' + lang + '\'});\n',
             pad = '\n    ',
             enable = [],
@@ -254,28 +283,13 @@ var ConstructorApp = React.createClass({
         }
 
         return text;
-    },
-    text: function(id) {
-        return {
-            ru: {
-                defaultRules: 'По умолчанию',
-                result: 'Результирующий код',
-                selectAll: 'Выбрать всё',
-                title: 'Выберите правила для Типографа',
-                nameFilterPlaceholder: 'Фильтр по имени',
-                titleFilterPlaceholder: 'Фильтр по описанию'
-            },
-            en: {
-                defaultRules: 'Default',
-                result: 'Code',
-                selectAll: 'Select all',
-                title: 'Select rules for Typograf',
-                nameFilterPlaceholder: 'Filter by name',
-                titleFilterPlaceholder: 'Filter by title'
-            }
-        }[this.state.lang][id];
-    },
-    updateSource: function() {
+    }
+
+    text(id) {
+        return getText(this.state.lang, id);
+    }
+
+    updateSource() {
         var enabled = [],
             disabled = [];
 
@@ -293,15 +307,14 @@ var ConstructorApp = React.createClass({
         this.setState({
             code: this.getSource(enabled, disabled, this.state.lang)
         });
-    },
-    getTitle: function(name) {
+    }
+
+    getTitle(name) {
         var obj = Typograf.titles[name],
             title = obj[this.state.lang] || obj.common;
 
         return title;
     }
-});
+}
 
-React.render(<ConstructorApp />, document.querySelector('.page'));
-
-})(React);
+export default App;
