@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
 import Typograf from 'typograf';
-import getText from './Texts';
+import { getText } from './Texts';
 import './App.css';
 
 var rules = Typograf.prototype._rules;
