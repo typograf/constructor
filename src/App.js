@@ -29,7 +29,7 @@ class App extends Component {
             'onDefault'
         ].forEach(function(event) {
             this[event] = this[event].bind(this);
-        }, this)
+        }, this);
 
         var defaultLang = 'ru';
         this.state = {
@@ -218,7 +218,7 @@ class App extends Component {
                         autoComplete="off"
                         rows="10"
                         value={this.state.code}
-                    ></textarea>
+                    />
                 </div>
                 <table className="rules">
                     <thead>
@@ -230,8 +230,7 @@ class App extends Component {
                                     checked={this.state.selectedAll}
                                 />
                             </th>
-                            <th className="rules__num">
-                            </th>
+                            <th className="rules__num"/>
                             <th className="rules__name">
                                 <input
                                     className="rules__name-filter"
