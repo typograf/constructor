@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import Typograf from 'typograf';
+import Typograf from '../node_modules/typograf/dist/typograf.all';
 import { getText } from './Texts';
 import './App.css';
 
