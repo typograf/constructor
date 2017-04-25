@@ -17,14 +17,14 @@
     "node": ">= 4.0"
   },
   "devDependencies": {
-    "eslint": "^3.8.0",
-    "eslint-plugin-react": "^6.4.1",
-    "react-scripts": "0.6.1"
+    "eslint": "^3.19.0",
+    "eslint-plugin-react": "^6.10.3",
+    "react-scripts": "0.9.5"
   },
   "dependencies": {
-    "typograf": "*",
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2"
+    "typograf": "^6.1.0",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
   },
   "scripts": {
     "build": "rd \"static\" /S /Q && del \"index.html\" /Q && react-scripts build && xcopy \"build\" . /S /I",

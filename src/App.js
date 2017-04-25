@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import Typograf from '../node_modules/typograf/dist/typograf.all';
+import Typograf from '../node_modules/typograf/dist/typograf';
+import titles from '../node_modules/typograf/dist/typograf.titles.json';
+import groups from '../node_modules/typograf/dist/typograf.groups.json';
 import { getText } from './Texts';
 import './App.css';
+
+Typograf.titles = titles;
+Typograf.groups = groups;
 
 var rules = Typograf.prototype._rules;
 rules
@@ -42,7 +47,7 @@ class App extends Component {
                 },
                 {
                     text: 'En',
-                    value: 'en'
+                    value: 'en-US'
                 }
             ],
             code: this.getSource([], [], defaultLang),
@@ -260,25 +265,25 @@ class App extends Component {
     }
 
     getSource(enabled, disabled, lang) {
-        var text = '// Typograf v' + Typograf.version + '\nvar t = new Typograf({lang: \'' + lang + '\'});\n',
+        var text = '// Typograf v' + Typograf.version + '\nvar t = new Typograf({locale: \'' + lang + '\'});\n',
             pad = '\n    ',
             enable = [],
             disable = [];
 
         if (enabled.length) {
             enabled.sort().forEach(function(rule) {
-                enable.push('"' + rule + '"');
+                enable.push('\'' + rule + '\'');
             });
 
-            text += 't.enable([' + enable.join(',' + pad) + ']);\n';
+            text += 't.enableRule([' + enable.join(',' + pad) + ']);\n';
         }
 
         if (disabled.length) {
             disabled.sort().forEach(function(rule) {
-                disable.push('"' + rule + '"');
+                disable.push('\'' + rule + '\'');
             });
 
-            text += 't.disable([' + disable.join(',' + pad) + ']);\n';
+            text += 't.disableRule([' + disable.join(',' + pad) + ']);\n';
         }
 
         return text;

@@ -7,7 +7,7 @@ var texts = {
         nameFilterPlaceholder: 'Фильтр по имени',
         titleFilterPlaceholder: 'Фильтр по описанию'
     },
-    en: {
+    'en-US': {
         defaultRules: 'Default',
         result: 'Code',
         selectAll: 'Select all',
