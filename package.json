@@ -24,14 +24,18 @@
   "dependencies": {
     "typograf": "^6.1.0",
     "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react-dom": "^15.5.4",
+    "snyk": "^1.189.0"
   },
   "scripts": {
     "build": "rd \"static\" /S /Q && del \"index.html\" /Q && react-scripts build && xcopy \"build\" . /S /I",
     "eslint": "./node_modules/.bin/eslint .",
     "test": "npm run-script eslint && react-scripts test --env=jsdom",
     "start": "react-scripts start",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
-  "private": true
+  "private": true,
+  "snyk": true
 }
